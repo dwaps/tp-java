@@ -1,83 +1,125 @@
 package fr.dwaps.main;
 
-public class Drawer {
-	public static final int SPEED_LOW = 100;
-	public static final int SPEED_NORMAL = 50;
-	public static final int SPEED_FAST = 10;
-	
-	private static final String FILL = "O ";
-	private static final String SPACE = "  ";
-	private static final String BORDER = "# ";
-	
-	private static final String ERROR_DRAW_HOUSE = "La maison ne peut pas être dessinée";
-	
-	private boolean animated = false;
-	private boolean bordered = false;
-	private int speed = SPEED_NORMAL;
+import java.util.Scanner;
 
-	// Setters
-	public void setAnimated(boolean animated) { this.animated = animated; }
-	public void setBordered(boolean bordered) { this.bordered = bordered; }
-	public void setSpeed(int speed) { this.speed = speed; }
+public class Drawer {
+	private static final String WHAT = "Que voulez-vous ? [Rh] ";
+	private static final String DIMENSIONS = "Quelles dimensions ? [width height] ";
+	private static final String ANIMATION_MODE = "Mode animation ? [On] ";
+	private static final String RESTART = "Voulez-vous recommencer ? [On] ";
+	private static final String DIM_CORRECTION = "Correction automatique des dimensions.";
 	
-	// Getters
-	public boolean getAnimated() { return animated; }
-	public boolean getBordered() { return bordered; }
-	public int getSpeed() { return speed; }
+	private String fill = "O ";
+	private String space = "  ";
+	private boolean animated = false;
+	private static Scanner sc = new Scanner(System.in);
+
+	// Getters / Setters
+	public boolean isAnimated() {
+		return animated;
+	}
+
+	public void setAnimated(boolean animated) {
+		this.animated = animated;
+	}
 	
 	// Methods
-	public void rect(int width, int height) {
+	public void doWhatUserWant() {
+		boolean house = false;
+		int width = 0, height = 0;
+		
+		// Récupération du choix de la forme
+		System.out.print(WHAT);
+		String response = sc.nextLine();
+		if (response.equals("h")) house = true;
+		
+		// Récupération des dimensions de la forme
+		System.out.print(DIMENSIONS);
+		response = sc.nextLine();
+		
+		try {
+			String tab[] = response.split(" ");
+			width = Integer.parseInt(tab[0]);
+			height = Integer.parseInt(tab[1]);
+		}
+		catch (Exception e) {
+			setAnimated(false);
+			doWhatUserWant();
+		}
+		
+		// Récupération du mode choisi (animation ou simple)
+		System.out.print(ANIMATION_MODE);
+		response = sc.nextLine();
+		if (!response.equals("n")) setAnimated(true);
+		
+		if (house) house(width, height);
+		else rect(width, height);
+	}
+	
+	private void sleep(boolean animated) {
+		if (animated) {
+			try { Thread.sleep(30); }
+			catch (InterruptedException e) {}
+		}
+	}
+	
+	private void rect(int width, int height) {
 		for (int i = 0; i < height; i++) {
 			for (int j = 0; j < width; j++) {
-				boolean b = bordered ?
-					(i== 0 || i == height-1 || j == 0 || j == width-1) : false;
-				
-				System.out.print(b ? BORDER : FILL);
-				sleep(speed);
+				sleep(animated);
+				System.out.print(fill);
 			}
 			System.out.println();
 		}
-	}
-	
-	public void house(int width, int height) {
-		boolean minWidthAuthorized = width > 3;
-		boolean isOddWidth = width%2 != 0;
-		boolean homeBaseIsValid = height > width/2+1;
+
+		System.out.print(RESTART);
+		String response = sc.nextLine();
 		
-		if (minWidthAuthorized && isOddWidth && homeBaseIsValid) {
-			final int nbIgnoredLines = width/2;
-			int cptSpaces = width/2;
-			
-			for (int i = nbIgnoredLines+1; i <= width; i++) {
-				draw(false, cptSpaces); // Drawing spaces
-				draw(true, i-cptSpaces); // Drawing fills
-				
-				System.out.println();
-				cptSpaces--;
-			}
-			
-			rect(width, height-nbIgnoredLines-1);
-		} else {
-			System.out.println(ERROR_DRAW_HOUSE);
+		if (!response.equals("n")) {
+			setAnimated(false);
+			doWhatUserWant();
+		}
+		else {
+			System.out.println("Bye bye ! 😀");
+			System.exit(0);
 		}
 	}
 	
-	private void draw(boolean isFillElement, int cpt) {
+	private void house(int width, int height) {
+		boolean widthOK = width > 2 && width%2 != 0;
+		boolean heightOK = height/2 >= 2 && height >= width/2;
+		
+		if (widthOK && heightOK) {
+			
+			int ignoredLines = width/2;
+			int spaces = ignoredLines;
+			boolean canDraw = false;
+			
+			for (int i = 1; i <= width; i++) {
+				if (i > ignoredLines) {
+					for (int k = 0; k < spaces; k++) {
+						System.out.print(space);
+					}
+					
+					draw(i-spaces);
+					
+					canDraw = true;
+					spaces--;
+				}
+				if (canDraw) System.out.println();
+			}
+			rect(width, height/2-1);
+		}
+		else {
+			System.out.println(DIM_CORRECTION);
+			house(widthOK ? width : ++width, heightOK ? height : ++height);
+		}
+	}
+
+	private void draw(int cpt) {
 		for (int i = 0; i < cpt; i++) {
-			if (isFillElement) {
-				System.out.print(FILL);
-				sleep(speed);
-			} else {
-				System.out.print(SPACE);
-			}
+			sleep(animated);
+			System.out.print(fill);
 		}
 	}
-	
-	private void sleep(int millis) {
-		if (animated) {
-			try { Thread.sleep(millis); }
-			catch (Exception e) {}
-		}
-	}
-	
 }
