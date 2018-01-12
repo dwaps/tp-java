@@ -1,49 +1,83 @@
 package fr.dwaps.main;
 
 public class Drawer {
-	private String fill = "O ";
-	private String space = "  ";
+	public static final int SPEED_LOW = 100;
+	public static final int SPEED_NORMAL = 50;
+	public static final int SPEED_FAST = 10;
 	
+	private static final String FILL = "O ";
+	private static final String SPACE = "  ";
+	private static final String BORDER = "# ";
+	
+	private static final String ERROR_DRAW_HOUSE = "La maison ne peut pas être dessinée";
+	
+	private boolean animated = false;
+	private boolean bordered = false;
+	private int speed = SPEED_NORMAL;
+
+	// Setters
+	public void setAnimated(boolean animated) { this.animated = animated; }
+	public void setBordered(boolean bordered) { this.bordered = bordered; }
+	public void setSpeed(int speed) { this.speed = speed; }
+	
+	// Getters
+	public boolean getAnimated() { return animated; }
+	public boolean getBordered() { return bordered; }
+	public int getSpeed() { return speed; }
+	
+	// Methods
 	public void rect(int width, int height) {
 		for (int i = 0; i < height; i++) {
 			for (int j = 0; j < width; j++) {
-				System.out.print(fill);
+				boolean b = bordered ?
+					(i== 0 || i == height-1 || j == 0 || j == width-1) : false;
+				
+				System.out.print(b ? BORDER : FILL);
+				sleep(speed);
 			}
 			System.out.println();
 		}
-		System.out.println();
 	}
 	
 	public void house(int width, int height) {
-		if (width > 3 && width%2 != 0) {
+		boolean minWidthAuthorized = width > 3;
+		boolean isOddWidth = width%2 != 0;
+		boolean homeBaseIsValid = height > width/2+1;
+		
+		if (minWidthAuthorized && isOddWidth && homeBaseIsValid) {
+			final int nbIgnoredLines = width/2;
+			int cptSpaces = width/2;
 			
-			int ignoredLines = width/2;
-			int spaces = ignoredLines;
-			boolean canDraw = false;
-			
-			for (int i = 1; i <= width; i++) {
-				if (i > ignoredLines) {
-					for (int k = 0; k < spaces; k++) {
-						System.out.print(space);
-					}
-					
-					draw(i-spaces);
-					
-					canDraw = true;
-					spaces--;
-				}
-				if (canDraw) System.out.println();
+			for (int i = nbIgnoredLines+1; i <= width; i++) {
+				draw(false, cptSpaces); // Drawing spaces
+				draw(true, i-cptSpaces); // Drawing fills
+				
+				System.out.println();
+				cptSpaces--;
 			}
-			rect(width, height);
-		}
-		else {
-			System.out.println("La largeur renseignée doit être impaire et supérieure à 3.");
+			
+			rect(width, height-nbIgnoredLines-1);
+		} else {
+			System.out.println(ERROR_DRAW_HOUSE);
 		}
 	}
 	
-	private void draw(int cpt) {
+	private void draw(boolean isFillElement, int cpt) {
 		for (int i = 0; i < cpt; i++) {
-			System.out.print(fill);
+			if (isFillElement) {
+				System.out.print(FILL);
+				sleep(speed);
+			} else {
+				System.out.print(SPACE);
+			}
 		}
 	}
+	
+	private void sleep(int millis) {
+		if (animated) {
+			try { Thread.sleep(millis); }
+			catch (Exception e) {}
+		}
+	}
+	
 }

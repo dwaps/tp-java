@@ -4,7 +4,10 @@ public class MainClass {
 
 	public static void main(String[] args) {
 		Drawer drawer = new Drawer();
-		drawer.house(11,8);
+		drawer.setAnimated(true);
+		drawer.setBordered(false);
+		drawer.setSpeed(Drawer.SPEED_FAST);
+		drawer.house(7,7);
 	}
 
 }
