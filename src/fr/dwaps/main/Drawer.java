@@ -2,37 +2,48 @@ package fr.dwaps.main;
 
 public class Drawer {
 	private String fill = "O ";
-	private String border = "# ";
-	private boolean animated = false;
-	private boolean bordered = false;
+	private String space = "  ";
 	
 	public void rect(int width, int height) {
 		for (int i = 0; i < height; i++) {
-			sleep(30);
 			for (int j = 0; j < width; j++) {
-				boolean b = bordered ?
-					(i== 0 || i == height-1 || j == 0 || j == width-1) : false;
-				
-				System.out.print(b ? border : fill);
-				sleep(30);
+				System.out.print(fill);
 			}
 			System.out.println();
 		}
 		System.out.println();
 	}
 	
-	public void sleep(int millis) {
-		if (animated) {
-			try { Thread.sleep(millis); }
-			catch (Exception e) {}
+	public void house(int width, int height) {
+		if (width > 3 && width%2 != 0) {
+			
+			int ignoredLines = width/2;
+			int spaces = ignoredLines;
+			boolean canDraw = false;
+			
+			for (int i = 1; i <= width; i++) {
+				if (i > ignoredLines) {
+					for (int k = 0; k < spaces; k++) {
+						System.out.print(space);
+					}
+					
+					draw(i-spaces);
+					
+					canDraw = true;
+					spaces--;
+				}
+				if (canDraw) System.out.println();
+			}
+			rect(width, height);
+		}
+		else {
+			System.out.println("La largeur renseignée doit être impaire et supérieure à 3.");
 		}
 	}
 	
-	public void setAnimated(boolean animated) {
-		this.animated = animated;
-	}
-	
-	public void setBordered(boolean bordered) {
-		this.bordered = bordered;
+	private void draw(int cpt) {
+		for (int i = 0; i < cpt; i++) {
+			System.out.print(fill);
+		}
 	}
 }
