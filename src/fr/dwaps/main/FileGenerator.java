@@ -3,6 +3,7 @@ package fr.dwaps.main;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -60,28 +61,35 @@ public class FileGenerator {
 		if (!data.isEmpty()) {
 			String[] dataTab = data.split(PROP_CHAR);
 			String firstData = dataTab[1];
-			String lastItemOfDataTab = dataTab[dataTab.length-1];
-			String lastData = lastItemOfDataTab.substring(lastItemOfDataTab.lastIndexOf(VALUE_CHAR)+1);
+			dataTab = Arrays.copyOfRange(dataTab, 2, dataTab.length);
+			String lastPairOfKeyValue = dataTab[dataTab.length-1];
+			String veryLastValue = lastPairOfKeyValue.substring(lastPairOfKeyValue.lastIndexOf(VALUE_CHAR)+1);
+			String key = dataTab[0];
 			
-			json = "[{\"" + firstData + "\": {";
+			json = "{\"" + firstData + "\": [";
 			
-			for (String element : dataTab) {
-				String prop = "";
-				String value = "";
+			for (int i = 0; i < dataTab.length; i++) {
+				String element = dataTab[i];
+				String prop = "", value = "";
+				
+				if (element.equals(key)) {
+					if (i ==0) json += "{";
+					else json = json.replaceAll(",$", "},{");
+				}
 				
 				try {
 					prop = element.substring(0, element.indexOf(VALUE_CHAR));
 					value = element.substring(element.lastIndexOf(VALUE_CHAR)+1);
-				} catch (Exception e) {}
-				
-				if (!prop.isEmpty()) {
-					json += "\"" + prop + "\": \"" + value + "\"";
-					if (!value.equals(lastData)) json += ",";
-				}
-				
+					
+					if (!prop.isEmpty()) {
+						json += "\"" + prop + "\":\"" + value + "\"";
+						if (value.equals(veryLastValue)) json += "}";
+						else json += ",";
+					}
+				} catch (IndexOutOfBoundsException e) {}
 			}
 			
-			json += "}}]";
+			json += "]}";
 		}
 		
 		return json;
