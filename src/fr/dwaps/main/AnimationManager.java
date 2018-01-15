@@ -3,8 +3,6 @@ package fr.dwaps.main;
 import static fr.dwaps.main.FramesProvider.*;
 
 public class AnimationManager {
-	public static final int REPEAT_ONCE = 1;
-	
 	private int nbOfRepetition = 1;
 	
 	public void numberOfRepetition(int nb) { nbOfRepetition = Math.abs(nb); }
